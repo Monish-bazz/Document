@@ -1,3 +1,5 @@
+https://github.com/user-attachments/assets/fb9f261a-059d-46a1-8e35-44f2ccd2243b
+
 # AI Contract Processing Pipeline with Intelligent Analysis
 
 A comprehensive, intelligent pipeline for processing legal contracts using LlamaParse for PDF text extraction, Google Gemini LLM for clause extraction and summarization, with advanced semantic search and parallel processing capabilities.
@@ -294,6 +296,10 @@ The system includes comprehensive error handling:
 ##  Security Best Practices
 
 - **Environment Variables**: API keys stored securely in `.env`
-- **Input Validation**: Sanitized file paths and content
+- **Input Vali
+
+
+
+dation**: Sanitized file paths and content
 - **Error Logging**: Detailed logs without exposing sensitive data
 
