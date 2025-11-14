@@ -1,0 +1,421 @@
+git branch -M main<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Analysis Results</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .search-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 25px;
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+        
+        .search-results {
+            margin-top: 20px;
+        }
+        
+        .search-result {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #4facfe;
+        }
+        
+        .search-score {
+            font-weight: bold;
+            color: #4facfe;
+            font-size: 0.9em;
+        }
+        
+        .contracts-grid {
+            display: grid;
+            gap: 25px;
+        }
+        
+        .contract-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+        
+        .contract-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .contract-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .contract-id {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .contract-section {
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .section-content {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4facfe;
+            line-height: 1.6;
+        }
+        
+        .clause-content {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #495057;
+        }
+        
+        .not-found {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .summary-content {
+            color: #495057;
+            line-height: 1.7;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Analysis Results</h1>
+            <p>Contract processing completed successfully</p>
+        </div>
+        
+        <div class="content">
+            <!-- Statistics -->
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">{{ results|length }}</div>
+                    <div class="stat-label">Contracts Processed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ results|selectattr('termination_clause')|rejectattr('termination_clause', 'equalto', 'NOT FOUND')|list|length }}</div>
+                    <div class="stat-label">Termination Clauses Found</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ results|selectattr('confidentiality_clause')|rejectattr('confidentiality_clause', 'equalto', 'NOT FOUND')|list|length }}</div>
+                    <div class="stat-label">Confidentiality Clauses Found</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ results|selectattr('liability_clause')|rejectattr('liability_clause', 'equalto', 'NOT FOUND')|list|length }}</div>
+                    <div class="stat-label">Liability Clauses Found</div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="actions">
+                <a href="/" class="btn btn-secondary">🏠 Process More Contracts</a>
+                <a href="/download/{{ session_id }}/csv" class="btn btn-success">📄 Download CSV</a>
+                <a href="/download/{{ session_id }}/json" class="btn btn-primary">📋 Download JSON</a>
+            </div>
+            
+            <!-- Semantic Search -->
+            <div class="search-section">
+                <h3>🔍 Semantic Search</h3>
+                <p>Search for similar clauses across all processed contracts</p>
+                <input type="text" id="search-input" class="search-input" placeholder="Enter search query (e.g., 'termination conditions', 'confidentiality requirements')">
+                <button onclick="performSearch()" class="btn btn-primary">Search</button>
+                
+                <div id="search-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Searching...</p>
+                </div>
+                
+                <div id="search-results" class="search-results"></div>
+            </div>
+            
+            <!-- Contract Results -->
+            <div class="contracts-grid">
+                {% for result in results %}
+                <div class="contract-card">
+                    <div class="contract-header">
+                        <div class="contract-id">📄 {{ result.contract_id }}</div>
+                    </div>
+                    
+                    <div class="contract-section">
+                        <div class="section-title">📝 Summary</div>
+                        <div class="section-content">
+                            <div class="summary-content">{{ result.summary }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="contract-section">
+                        <div class="section-title">⚡ Termination Clause</div>
+                        <div class="section-content">
+                            {% if result.termination_clause == "NOT FOUND" %}
+                                <div class="not-found">No termination clause found</div>
+                            {% else %}
+                                <div class="clause-content">{{ result.termination_clause }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="contract-section">
+                        <div class="section-title">🔒 Confidentiality Clause</div>
+                        <div class="section-content">
+                            {% if result.confidentiality_clause == "NOT FOUND" %}
+                                <div class="not-found">No confidentiality clause found</div>
+                            {% else %}
+                                <div class="clause-content">{{ result.confidentiality_clause }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="contract-section">
+                        <div class="section-title">⚖️ Liability Clause</div>
+                        <div class="section-content">
+                            {% if result.liability_clause == "NOT FOUND" %}
+                                <div class="not-found">No liability clause found</div>
+                            {% else %}
+                                <div class="clause-content">{{ result.liability_clause }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function performSearch() {
+            const query = document.getElementById('search-input').value.trim();
+            if (!query) {
+                alert('Please enter a search query');
+                return;
+            }
+            
+            const loadingDiv = document.getElementById('search-loading');
+            const resultsDiv = document.getElementById('search-results');
+            
+            loadingDiv.style.display = 'block';
+            resultsDiv.innerHTML = '';
+            
+            fetch('/api/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: query,
+                    session_id: '{{ session_id }}'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingDiv.style.display = 'none';
+                
+                if (data.error) {
+                    resultsDiv.innerHTML = `<div class="alert alert-info">Error: ${data.error}</div>`;
+                    return;
+                }
+                
+                if (data.results.length === 0) {
+                    resultsDiv.innerHTML = '<div class="alert alert-info">No matching clauses found.</div>';
+                    return;
+                }
+                
+                let html = '<h4>Search Results:</h4>';
+                data.results.forEach(result => {
+                    html += `
+                        <div class="search-result">
+                            <div class="search-score">Similarity: ${(result.score * 100).toFixed(1)}%</div>
+                            <div>${result.text}</div>
+                        </div>
+                    `;
+                });
+                
+                resultsDiv.innerHTML = html;
+            })
+            .catch(error => {
+                loadingDiv.style.display = 'none';
+                resultsDiv.innerHTML = `<div class="alert alert-info">Error performing search: ${error}</div>`;
+            });
+        }
+        
+        // Allow Enter key to trigger search
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    </script>
+</body>
+</html>
